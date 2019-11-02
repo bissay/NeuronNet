@@ -19,10 +19,10 @@ public:
   Default constructor: a *RS* neuron.
  */
     Neuron();
-    void set_params(const NeuronParams&, const double n=0);
-    void set_type(std::string);
-    void set_default_params(const std::string&, double n=0);
-    bool is_type(const std::string&);
+    void set_params(const NeuronParams& np, const double n=0);
+    void set_type(std::string typ);
+    void set_default_params(const std::string& typ, double n=0);
+    bool is_type(const std::string& typ);
     std::string type() {return _type->first;}
     bool is_inhibitory() const {return params.inhib;}
     void set_inhibitory() {params.inhib=true;}

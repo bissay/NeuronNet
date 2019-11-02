@@ -1,6 +1,7 @@
 #include "network.h"
 #include "random.h"
 
+
 void Network::resize(const size_t &n, double inhib) {
     size_t old = size();
     neurons.resize(n);
@@ -128,3 +129,68 @@ void Network::print_traj(const int time, const std::map<std::string, size_t> &_n
             }
     (*_out) << std::endl;
 }
+
+
+std::pair<size_t, double> Network::degree(const size_t& n) const{
+	
+	double total_intensity(0.0);
+	size_t nb_connections(neighbors(n).size());
+	
+	for(auto param :neighbors(n)){ total_intensity += param.second;}
+			
+	std::pair<size_t, double> pair(nb_connections, total_intensity);
+	
+	return pair;
+	}
+
+
+std::set<size_t> Network::step(const std::vector<double>& thalam){
+	
+	std::set<size_t> firingNeurons;
+	std::vector<bool> is_firing(neurons.size());
+	double I;
+	double inhibiting, exciter;
+	
+	for (size_t i(0);i<neurons.size();++i){ 
+		
+		if(neurons[i].firing()){
+				firingNeurons.insert(i);
+				is_firing.push_back(true);
+				neurons[i].reset();
+		} else {is_firing.push_back(false);}
+		
+		for(auto neighbor :neighbors(i)){
+			if(is_firing[i]){
+				 if(neurons[neighbor.first].is_inhibitory()){
+					 inhibiting+=neighbor.second;
+					
+				 } else {exciter+= neighbor.second;} 
+			 } 
+		 }
+				
+		if(neurons[i].is_inhibitory()){ 
+			I=0.4*thalam[i] -inhibiting + 0.5*exciter;
+		} else { I= thalam[i] - inhibiting + 0.5*exciter;}
+		
+		neurons[i].input(I);
+		neurons[i].step(); 		
+		}
+	return firingNeurons;	
+	}
+
+
+std::vector<std::pair<size_t, double>> Network::neighbors(const size_t& n) const{
+
+	std::vector<std::pair<size_t, double>> nghbr;
+	std::pair<size_t, double> connection(n,0);
+	auto param = links.lower_bound(connection);
+	
+	while(param -> first.first == n and param -> first.second < neurons.size()){
+		nghbr.push_back(std::make_pair(param -> first.second, param-> second));
+		++param;
+	}
+	
+	return nghbr;		
+}
+
+
