@@ -173,7 +173,11 @@ std::set<size_t> Network::step(const std::vector<double>& thalam){
 		} else { I= thalam[i] - inhibiting + 0.5*exciter;}
 		
 		neurons[i].input(I);
-		neurons[i].step(); 		
+		neurons[i].step(); 
+		I = 0.0;
+		inhibiting = 0.0;
+		exciter = 0;
+				
 		}
 	return firingNeurons;	
 	}
